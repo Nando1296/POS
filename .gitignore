@@ -1,5 +1,21 @@
+# .NET
 **/bin/
 **/obj/
+# Quitar carpetas de publicación
+**/publish/
+
+# Docker y Local
 node_modules/
 .env
 .vscode/
+.vs/
+
+# Entity Framework y SQL locales
+*.db
+*.db-shm
+*.db-wal
+# Si tienes el volumen de docker en una carpeta local, ignórala:
+mssql_data/
+
+# User Secrets de .NET
+secrets.json

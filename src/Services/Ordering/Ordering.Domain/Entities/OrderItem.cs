@@ -6,14 +6,14 @@ public class OrderItem
 {
     public Guid Id { get; private set; }
     public Guid ProductId  { get; private set; }
-    public string ProductName { get; private set; }
+    public string ProductName { get; private set; } = default!;
     public decimal UnitPrice { get; private set; }
     public int Quantity { get; private set; }
 
     private readonly List<OrderItemOption> _options = new();
     public IReadOnlyCollection<OrderItemOption> Options => _options.AsReadOnly();
 
-    protected OrderItem() {}
+    protected OrderItem() {}  //EF
 
     public OrderItem(
         Guid productId,

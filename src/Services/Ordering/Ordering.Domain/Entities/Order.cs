@@ -1,4 +1,5 @@
 using Ordering.Domain.Enums;
+using Ordering.Domain.Exceptions;
 
 namespace Ordering.Domain.Entities;
 
@@ -17,7 +18,7 @@ public class Order
     public Order(int tableNumber)
     {
         if(tableNumber <=0)
-        throw new ArgumentException("Table number must be valid.");
+        throw new InvalidOrderDataException("Table number must be valid and positive.");
 
         Id = Guid.NewGuid();
         TableNumber = tableNumber;
@@ -28,7 +29,7 @@ public class Order
     public void AddItem(OrderItem item)
     {
         if(Status != OrderStatus.Created)
-            throw new ArgumentException("Cannot add items to an order that is already in progress.");
+            throw new InvalidOrderStateException("Cannot add items to an order that is already in progress.");
 
         _items.Add(item);
     }
@@ -36,7 +37,7 @@ public class Order
     public void ChangeStatus(OrderStatus newStatus)
     {
         if(Status == OrderStatus.Paid)
-            throw new ArgumentException("Paid orders cannot change status.");
+            throw new InvalidOrderStateException("Paid orders cannot change status.");
 
         Status = newStatus;
     }
