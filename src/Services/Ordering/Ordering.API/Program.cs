@@ -1,29 +1,29 @@
 using Ordering.Application;
 using Ordering.Data;
-using Ordering.Application.DTOs;
+using Ordering.API.Middleware;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Agregar servicios al contenedor
 builder.Services.AddControllers();
-
-// Swagger / OpenAPI (Para probar la API visualmente)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Capas de Arquitectura Limpia
-builder.Services.AddApplicationServices(); // Registra MediatR
-builder.Services.AddInfrastructureServices(builder.Configuration); // Registra EF Core y Repositorios
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
+builder.Services.AddValidatorsFromAssembly(typeof(Ordering.Application.DependencyInjection).Assembly);
 
 var app = builder.Build();
 
-// 2. Configurar el pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();

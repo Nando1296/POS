@@ -7,7 +7,7 @@ public record OrderItemRequest(
     string ProductName, 
     decimal UnitPrice, 
     int Quantity, 
-    List<OrderItemOptionRequest> Options // <--- ESTO DEBE ESTAR AQUÍ
+    List<OrderItemOptionRequest>? Options = null
 );
 
 public record OrderItemOptionRequest(string Name, decimal AdditionalPrice);
