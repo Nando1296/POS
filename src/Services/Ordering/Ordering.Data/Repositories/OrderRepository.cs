@@ -32,4 +32,23 @@ public class OrderRepository : IOrderRepository
         _context.Orders.Update(order);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IReadOnlyList<Order>> GetAllAsync(int pageNumber = 1, int pageSize = 10, string? status = null, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Orders
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Options)
+            .AsNoTracking();
+
+        if (!string.IsNullOrEmpty(status))
+        {
+            query = query.Where(o => o.Status.ToString() == status);
+        }
+
+        return await query
+            .OrderByDescending(o => o.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
 }

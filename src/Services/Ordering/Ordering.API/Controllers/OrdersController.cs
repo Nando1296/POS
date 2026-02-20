@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.API.Contracts.Orders;
 using Ordering.Application.Orders.Queries.GetOrderById;
+using Ordering.Application.Orders.Queries.GetOrders;
 using Ordering.Application.Orders.Commands.CreateOrder;
 using Ordering.Application.DTOs;
 using Ordering.Application.DTOs.Responses;
@@ -71,4 +72,23 @@ public class OrdersController : ApiController
 
         return order;
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetOrders([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? status = null, CancellationToken cancellationToken = default)
+    {
+        var query = new GetOrdersQuery(pageNumber, pageSize, status);
+        var result = await _sender.Send(query, cancellationToken);
+
+        return result.Match(
+            orders => Ok(orders.Select(o => new OrderSummaryResponse(
+                o.Id,
+                o.TableNumber,
+                o.Status,
+                o.CreatedAt,
+                o.Total
+            )).ToList()),
+            errors => Problem(errors)
+        );
+    }
+
 }

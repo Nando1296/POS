@@ -2,6 +2,7 @@ using MediatR;
 using Ordering.Application.DTOs.Responses;
 using Ordering.Domain.Interfaces;
 using ErrorOr;
+using Ordering.Domain.Errors;
 
 namespace Ordering.Application.Orders.Queries.GetOrderById;
 
@@ -20,10 +21,7 @@ public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, Error
         
         if (order == null)
         {
-            return Error.NotFound(
-                code: "Order.NotFound",
-                description: $"Order with ID {request.Id} was not found."
-            );
+            return DomainErrors.Orders.NotFound(request.Id);
         }
 
         var orderDetails = new OrderResponseDto

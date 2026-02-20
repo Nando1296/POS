@@ -7,6 +7,6 @@ namespace Ordering.Domain.Interfaces
         Task<Order?> GetByIdAsync(Guid id);
         Task AddAsync(Order order);
         Task UpdateAsync(Order order);
-        //Task<IEnumerable<Order>> GetAllAsync();
+        Task<IReadOnlyList<Order>> GetAllAsync(int pageNumber = 1, int pageSize = 10, string? status = null, CancellationToken cancellationToken = default);
     }
 }
