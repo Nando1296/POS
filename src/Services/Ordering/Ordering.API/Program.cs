@@ -1,5 +1,5 @@
 using Ordering.Application;
-using Ordering.Data;
+using Ordering.Infrastructure;
 using Ordering.API.Middleware;
 using FluentValidation;
 
@@ -13,6 +13,8 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddValidatorsFromAssembly(typeof(Ordering.Application.DependencyInjection).Assembly);
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -22,7 +24,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.MapControllers();
 
