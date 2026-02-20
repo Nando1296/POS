@@ -7,5 +7,6 @@ namespace Ordering.Domain.Interfaces
         Task<Order?> GetByIdAsync(Guid id);
         Task AddAsync(Order order);
         Task UpdateAsync(Order order);
+        //Task<IEnumerable<Order>> GetAllAsync();
     }
 }

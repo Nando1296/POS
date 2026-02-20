@@ -1,0 +1,34 @@
+name: pos-system
+
+services:
+  ordering-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: pos-sql-server
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=${MSSQL_PID}
+      # SUGERENCIA: Forzamos el lenguaje a inglés para evitar errores de formato de fecha en logs
+      - MSSQL_LCID=1033 
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    restart: unless-stopped
+    networks:
+      - pos-network
+    healthcheck:
+      # Ajusté el path a sqlcmd que a veces varía en imágenes nuevas
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${DB_PASSWORD}", "-C", "-Q", "SELECT 1"]
+      interval: 15s # Un poco más de tiempo para que no sature
+      timeout: 10s
+      retries: 5
+      start_period: 20s # SQL Server tarda en arrancar la primera vez
+
+volumes:
+  mssql_data:
+    driver: local # Asegura que persista en tu máquina
+
+networks:
+  pos-network:
+    driver: bridge

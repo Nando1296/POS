@@ -1,4 +1,6 @@
 using Ordering.Domain.ValueObjects;
+using ErrorOr;
+using Ordering.Domain.Errors;
 
 namespace Ordering.Domain.Entities;
 
@@ -15,23 +17,35 @@ public class OrderItem
 
     protected OrderItem() {}  //EF
 
-    public OrderItem(
+    private OrderItem
+    (
         Guid productId,
         string productName,
         decimal unitPrice,
-        int quantity)
+        int quantity
+    )
     {
-        if (quantity <= 0)
-        throw new ArgumentException("Quantity must be greater than zero.");
-
-        if(UnitPrice < 0)
-        throw new ArgumentException("Price cannot be negative.");
-
         Id = Guid.NewGuid();
         ProductId = productId;
         ProductName = productName;
         UnitPrice = unitPrice;
         Quantity = quantity;
+    }
+
+    public static ErrorOr<OrderItem> Create(Guid productId, string productName, decimal unitPrice, int quantity)
+    {
+        if (quantity <= 0)
+        {
+            return DomainErrors.OrderItems.InvalidQuantity;
+        }
+
+        if(unitPrice < 0)
+        {
+            return DomainErrors.OrderItems.InvalidUnitPrice;
+        }
+
+        var orderItem = new OrderItem(productId, productName, unitPrice, quantity);
+        return orderItem;
     }
 
     public void AddOption(OrderItemOption option)

@@ -2,17 +2,14 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.API.Contracts.Orders;
 using Ordering.Application.Orders.Queries.GetOrderById;
-using Ordering.Application.Orders.Commands.CreateOrder; 
+using Ordering.Application.Orders.Commands.CreateOrder;
 using Ordering.Application.DTOs;
-using Ordering.Domain.Exceptions;
-using System.Reflection.Metadata.Ecma335;
-using Microsoft.VisualBasic;
+using Ordering.Application.DTOs.Responses;
 
 namespace Ordering.API.Controllers;
 
-[ApiController]
 [Route("api/orders")]
-public class OrdersController : ControllerBase
+public class OrdersController : ApiController
 {
     private readonly ISender _sender;
 
@@ -37,10 +34,10 @@ public class OrdersController : ControllerBase
 
         var result = await _sender.Send(command);
 
-        return Ok(new { 
-            Id = result, 
-            Message = "Order stored in Database!" 
-        });
+        return result.Match(
+            orderId => Ok(new { OrderId = orderId, Message = "Order created successfully." }),
+            errors => Problem(errors)
+        );
     }
 
     [HttpGet("{id}")]
@@ -49,18 +46,21 @@ public class OrdersController : ControllerBase
         var query = new GetOrderByIdQuery(id);
         var result = await _sender.Send(query);
 
-        if (result == null)
-        {
-            return NotFound(new { Message = $"Order with ID {id} not found." });
-        }
+        return result.Match(
+            orderDto => Ok(MapToOrderResponse(orderDto)),
+            errors => Problem(errors)
+        );
+    }
 
+    private static OrderResponse MapToOrderResponse(OrderResponseDto orderResponseDto)
+    {
         var order = new OrderResponse(
-            result.Id,
-            result.TableNumber,
-            result.Status,
-            result.CreatedAt,
-            result.TotalPrice,
-            result.Items.Select(i => new OrderItemResponse(
+            orderResponseDto.Id,
+            orderResponseDto.TableNumber,
+            orderResponseDto.Status,
+            orderResponseDto.CreatedAt,
+            orderResponseDto.TotalPrice,
+            orderResponseDto.Items.Select(i => new OrderItemResponse(
                 i.ProductId,
                 i.ProductName,
                 i.UnitPrice,
@@ -69,6 +69,6 @@ public class OrdersController : ControllerBase
             )).ToList()
         );
 
-        return Ok(order);
+        return order;
     }
 }

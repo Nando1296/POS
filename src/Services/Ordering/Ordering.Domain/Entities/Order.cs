@@ -1,5 +1,7 @@
 using Ordering.Domain.Enums;
 using Ordering.Domain.Exceptions;
+using ErrorOr;
+using Ordering.Domain.Errors;
 
 namespace Ordering.Domain.Entities;
 
@@ -15,31 +17,88 @@ public class Order
 
     protected Order() {}
 
-    public Order(int tableNumber)
+    private Order(int tableNumber)
     {
-        if(tableNumber <=0)
-        throw new InvalidOrderDataException("Table number must be valid and positive.");
-
         Id = Guid.NewGuid();
         TableNumber = tableNumber;
         Status = OrderStatus.Created;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public void AddItem(OrderItem item)
+    public static ErrorOr<Order> Create(int tableNumber)
     {
-        if(Status != OrderStatus.Created)
-            throw new InvalidOrderStateException("Cannot add items to an order that is already in progress.");
+        if(tableNumber <= 0)
+        {
+            return DomainErrors.Orders.InvalidTableNumber;
+        }
 
-        _items.Add(item);
+        return new Order(tableNumber);
     }
 
-    public void ChangeStatus(OrderStatus newStatus)
+    public ErrorOr<Success> AddItem(OrderItem item)
+    {
+        if(Status != OrderStatus.Created)
+        {
+            return DomainErrors.Orders.InvalidState("Cannot add items to an order that is already in progress.");
+        }
+
+        _items.Add(item);
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> AcceptedOrder()
+    {
+        if(Status != OrderStatus.Created && Status != OrderStatus.Paid)
+        {
+            return DomainErrors.Orders.InvalidState("Only orders in 'Created' or 'Paid' status can be accepted.");
+        }
+
+        Status = OrderStatus.InPreparation;
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> MarkAsReady()
+    {
+        if(Status != OrderStatus.InPreparation)
+        {
+            return DomainErrors.Orders.InvalidState("Only orders in 'InPreparation' status can be marked as ready.");
+        }
+
+        Status = OrderStatus.Ready;
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> ServeOrder()
+    {
+        if(Status != OrderStatus.Ready)
+        {
+            return DomainErrors.Orders.InvalidState("Only orders in 'Ready' status can be served.");
+        }
+
+        Status = OrderStatus.Served;
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> MarkAsPaid()
+    {
+        if(Status != OrderStatus.Served && Status != OrderStatus.Created)
+        {
+            return DomainErrors.Orders.InvalidState("Only orders in 'Created' or 'Served' status can be marked as paid.");
+        }
+
+        Status = OrderStatus.Paid;
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> CancelOrder(string reason)
     {
         if(Status == OrderStatus.Paid)
-            throw new InvalidOrderStateException("Paid orders cannot change status.");
+        {
+            return DomainErrors.Orders.InvalidState("Paid orders cannot be cancelled.");
+        }
 
-        Status = newStatus;
+        Status = OrderStatus.Cancelled;
+        return Result.Success;
     }
 
     public decimal GetTotal()
