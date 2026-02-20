@@ -1,9 +1,9 @@
-namespace Ordering.Data;
+namespace Ordering.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection; 
-using Ordering.Data.Persistence;
-using Ordering.Data.Repositories;
+using Ordering.Infrastructure.Persistence;
+using Ordering.Infrastructure.Repositories;
 using Ordering.Domain.Interfaces;
 
 public static class DependencyInjection

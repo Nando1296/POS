@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Ordering.Data.Persistence;
+using Ordering.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace Ordering.Data.Migrations
+namespace Ordering.Infrastructure.Migrations
 {
     [DbContext(typeof(OrderingDbContext))]
     [Migration("20260213022919_InitialCreate")]

@@ -1,8 +1,8 @@
-namespace Ordering.Data.Repositories;
+namespace Ordering.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Ordering.Domain.Entities; 
 using Ordering.Domain.Interfaces;
-using Ordering.Data.Persistence;
+using Ordering.Infrastructure.Persistence;
 
 public class OrderRepository : IOrderRepository
 {

@@ -1,5 +1,4 @@
 using Ordering.Domain.Enums;
-using Ordering.Domain.Exceptions;
 using ErrorOr;
 using Ordering.Domain.Errors;
 

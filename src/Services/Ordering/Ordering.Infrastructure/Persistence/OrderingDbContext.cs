@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Ordering.Domain.Entities;
 using System.Reflection;
 
-namespace Ordering.Data.Persistence;
+namespace Ordering.Infrastructure.Persistence;
 public class OrderingDbContext : DbContext
 {
     public OrderingDbContext(DbContextOptions<OrderingDbContext> options) : base(options)
