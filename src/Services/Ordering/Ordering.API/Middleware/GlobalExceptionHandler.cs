@@ -35,11 +35,14 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         if (exception is ValidationException validationException)
         {
-            problemDetails.Extensions.Add("errors", validationException.Errors.Select(e => new
-            {
-                e.PropertyName,
-                e.ErrorMessage
-            }));
+            var validationError = validationException.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select( e => e.ErrorMessage).ToArray()
+                );
+
+            problemDetails.Extensions.Add("errors", validationError);
         }
 
         httpContext.Response.StatusCode = (int)statusCode;

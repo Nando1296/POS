@@ -36,10 +36,10 @@ public class OrdersController : ApiController
         var result = await _sender.Send(command);
 
         return result.Match(
-            orderId => Ok(new { OrderId = orderId, Message = "Order created successfully." }),
+            orderId => StatusCode(StatusCodes.Status201Created, new { OrderId = orderId, Message = "Order created successfully."}),
             errors => Problem(errors)
         );
-    }
+    }   
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOrderById(Guid id)
